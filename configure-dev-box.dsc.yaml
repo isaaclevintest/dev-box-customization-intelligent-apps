@@ -1,0 +1,393 @@
+properties:
+  configurationVersion: 0.2.0
+  ########################################
+  ### ASSERTIONS: System Requirements
+  ########################################
+  assertions:
+    ### Assertion: OS Version
+    ### -------------------------------------
+    - resource: Microsoft.Windows.Developer/OsVersion
+      id: OsVersion
+      directives:
+        description: Minimum OS version requirement
+        allowPrerelease: true
+      settings:
+        MinVersion: "10.0.22000"
+  ########################################
+  ### RESOURCES: System Configuration
+  ########################################
+  resources:
+   ########################################
+   ### Initialization
+   ########################################
+   ### Format a new Dev Drive
+   ### -------------------------------------
+   - resource: Disk
+     id: devdrive
+     directives:
+       description: 'Format a new Dev Drive volume onto Disk 0'
+       module: StorageDsc
+       allowPrerelease: true
+     settings:
+       DiskId: '0'
+       DiskIdType: 'Number'
+       DriveLetter: 'Z'
+       FSLabel: 'Dev Drive'
+       DevDrive: true
+       AllowDestructive: true
+       FSFormat: 'ReFS'
+       Size: '50Gb'
+   ### Install Git
+   ### -------------------------------------
+   - resource: Microsoft.WinGet.DSC/WinGetPackage
+     id: git
+     directives:
+       description: Install Git
+       allowPrerelease: true
+     settings:
+       id: Git.Git
+   ### Configure Git
+   ### -------------------------------------
+   - resource: PSDscResources/Script
+     id: configuregit
+     dependsOn:
+       - git
+     directives:
+       description: Configure Git
+     settings:
+       SetScript: |
+         $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+         git config --global user.name "Isaac Levin"
+         git config --global user.email isaac.r.levin@gmail.com
+       GetScript: return $false
+       TestScript: return $false
+   ### Install Clone dev-box-customization-intelligent-apps repository
+   ### -------------------------------------
+   - resource: GitDsc/GitClone
+     id: dev-box-customization-intelligent-apps
+     dependsOn:
+       - git
+       - devdrive
+     directives:
+       description: Clone WinGet CLI GitHub repository
+       allowPrerelease: true
+     settings:
+       HttpsUrl: https://github.com/isaaclevintest/dev-box-customization-intelligent-apps
+       RootDirectory: z:\src
+       Ensure: Present
+   ########################################
+   ### OS Configurations
+   ########################################
+   ### Install Windows VirtualMachinePlatform
+   ### -------------------------------------
+  #  - resource: PSDscResources/WindowsOptionalFeature
+  #    directives:
+  #      description: Install VirtualMachinePlatform
+  #    settings:
+  #      name: VirtualMachinePlatform
+  #      ensure: Present
+  #  ### Install WSL
+  #  ### -------------------------------------
+  #  - resource: PSDscResources/WindowsOptionalFeature
+  #    directives:
+  #      description: Install WSL
+  #    settings:
+  #      name: Microsoft-Windows-Subsystem-Linux
+  #      ensure: Present
+
+   ### Configure Install Ubuntu
+   ### -------------------------------------
+   - resource: PSDscResources/Script
+     id: ubuntuwsl
+     directives:
+       description: Install Ubuntu for WSL
+     settings:
+       SetScript: |
+         $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+         wsl --install -d Ubuntu
+       GetScript: return $false
+       TestScript: return $false
+   ### Enable: Developer Mode
+   ### -------------------------------------
+   - resource: Microsoft.Windows.Developer/DeveloperMode
+     id: developermode
+     directives:
+       description: Enable Developer Mode
+       allowPrerelease: true
+     settings:
+       Ensure: Present
+    ### Show file extensions and hidden files
+    ### -------------------------------------
+   ### Enable: Show File Extensions and Hidden Files
+   ### -------------------------------------
+   - resource: Microsoft.Windows.Developer/WindowsExplorer
+     id: hiddenfilesshow
+     directives:
+       description: Show File Extensions and hidden files
+       allowPrerelease: true
+     settings:
+       FileExtensions: Show
+       HiddenFiles: Show
+   ### Set theme to Dark
+   ### -------------------------------------
+   - resource: Microsoft.Windows.Developer/EnableDarkMode
+     id: darkmode
+     directives:
+       description: Set theme to Dark
+       allowPrerelease: true
+     settings:
+       Ensure: Present
+       RestartExplorer: true
+########################################
+   ### Install CLIs, SDKs & Tools
+   ########################################
+   ### Install Powershell
+   ### -------------------------------------
+   - resource: Microsoft.WinGet.DSC/WinGetPackage
+     id: powershell
+     directives:
+       description: Install Powershell
+       allowPrerelease: true
+     settings:
+       id: Microsoft.PowerShell
+   ### Install Python
+   ### -------------------------------------
+   - resource: Microsoft.WinGet.DSC/WinGetPackage
+     id: python
+     directives:
+       description: Install Python
+       allowPrerelease: true
+     settings:
+       id: Python.Python.3.11
+   ### Install NodeJS
+   ### -------------------------------------
+   - resource: Microsoft.WinGet.DSC/WinGetPackage
+     id: nodejs
+     directives:
+       description: Install NodeJS
+       allowPrerelease: true
+     settings:
+       id: OpenJS.NodeJS
+   ### Install .NET 8
+   ### -------------------------------------
+   - resource: Microsoft.WinGet.DSC/WinGetPackage
+     id: dotnet
+     directives:
+       description: Install .NET 8
+       allowPrerelease: true
+     settings:
+       id: Microsoft.DotNet.SDK.8
+   ### Install Bicep
+   ### -------------------------------------
+   - resource: PSDscResources/Script
+     id: bicep
+     directives:
+       description: Install Bicep for Azure CLI
+     settings:
+       SetScript: |
+         $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+         az config set bicep.use_binary_from_path=False --only-show-errors
+         az bicep install --only-show-errors
+       GetScript: return $false
+       TestScript: return $false
+   ### Install Azd
+   ### -------------------------------------
+   - resource: Microsoft.WinGet.DSC/WinGetPackage
+     id: azd
+     directives:
+       description: Install Azd
+       allowPrerelease: true
+     settings:
+       id: Microsoft.Azd
+   ### Install GitKraken
+   ### -------------------------------------
+   - resource: Microsoft.WinGet.DSC/WinGetPackage
+     id: gitkraken
+     directives:
+       description: Install GitKraken
+       allowPrerelease: true
+     settings:
+       id: Axosoft.GitKraken
+   ### Install Docker
+   ### -------------------------------------
+   - resource: Microsoft.WinGet.DSC/WinGetPackage
+     id: docker
+     directives:
+       description: Install Docker
+       allowPrerelease: true
+     settings:
+       id: Docker.DockerDesktop
+       ensure: Present
+########################################
+   ### Configure Powershell and Windows Terminal
+   ### Copy Powershell Config
+   ### -------------------------------------
+  #  - resource: PSDscResources/Script
+  #    id: copypsconfig
+  #    directives:
+  #      description: Copy Powershell Config
+  #    settings:
+  #      SetScript: |
+  #        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+  #        Write-Host $PSHOME
+  #        Copy-Item "Z:\src\dev-box-customization-intelligent-apps\tools\powershell.config.json" -Destination $PSHOME
+  #      GetScript: return $false
+  #      TestScript: return $false
+   ### Copy Terminal Fragment
+   ### -------------------------------------
+  #  - resource: PSDscResources/Script
+  #    id: copyterminalfragment
+  #    directives:
+  #      description: Copy Terminal Fragment
+  #    settings:
+  #      SetScript: |
+  #        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+  #        Copy-Item "Z:\src\dev-box-customization-intelligent-apps\tools\terminal.fragment.json" -Destination "$env:APPDATA\Local\Microsoft\Windows Terminal\Fragments"
+  #      GetScript: return $false
+  #      TestScript: return $false
+########################################
+   ### Install and Configure Oh My Posh
+   ### Install oh-my-posh
+   ### -------------------------------------
+   - resource: Microsoft.WinGet.DSC/WinGetPackage
+     id: OMP
+     directives:
+       description: Install Oh My Posh
+       allowPrerelease: true
+     settings:
+       id: JanDeDobbeleer.OhMyPosh
+   ### Configure oh-my-posh
+   ### -------------------------------------
+  #  - resource: PSDscResources/Script
+  #    id: configureomp
+  #    directives:
+  #      description: Configure OMP
+  #    settings:
+  #      SetScript: |
+  #        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+  #        $env:Path += ";$env:LOCALAPPDATA\Programs\oh-my-posh\bin"
+  #        oh-my-posh font install --user CascadiaCode
+  #        Write-Host $PROFILE
+  #        Set-Content -Path $PROFILE -Value "oh-my-posh --init --shell pwsh --config $env:POSH_THEMES_PATH\jandedobbeleer.omp.json | Invoke-Expression"
+  #        Install-Module -Name Terminal-Icons -Repository PSGallery -Force
+  #        Import-Module -Name Terminal-Icons
+  #      GetScript: return $false
+  #      TestScript: return $false
+########################################
+   ### Install Visual Studio Code and Extensions
+   ### Install Visual Studio Code
+   ### -------------------------------------
+   - resource: Microsoft.WinGet.DSC/WinGetPackage
+     id: vscode
+     directives:
+       description: Install Microsoft Visual Studio Code
+       allowPrerelease: true
+     settings:
+       id: Microsoft.VisualStudioCode
+       ensure: Present
+   ### Install VS Code Extensions
+   ### -------------------------------------
+   - resource: PSDscResources/Script
+     id: vscodeextensions
+     dependsOn:
+       - vscode
+     directives:
+       description: Install Basic VS Code Extensions
+     settings:
+       SetScript: |
+         $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+         code --install-extension ms-vscode.powershell
+         code --install-extension ms-dotnettools.csdevkit
+         code --install-extension ms-dotnettools.csharp
+         code --install-extension ms-dotnettools.vscode-dotnet-runtime
+         code --install-extension ms-vscode.vscode-node-azure-pack
+         code --install-extension ms-azuretools.azure-dev
+         code --install-extension DevCenter.ms-devbox
+       GetScript: return $false
+       TestScript: return $false
+   ### Install VS Code Intelligent Apps Extensions
+   ### -------------------------------------
+   - resource: PSDscResources/Script
+     id: vscodeintelligentappextensions
+     dependsOn:
+       - vscode
+     directives:
+       description: Install VS Code Intelligent Apps Extensions
+     settings:
+       SetScript: |
+         $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+         code --install-extension GitHub.vscode-github-actions
+         code --install-extension esbenp.prettier-vscode
+         code --install-extension ipedrazas.kubernetes-snippets
+         code --install-extension ms-azuretools.azure-dev
+         code --install-extension ms-azuretools.vscode-azurecontainerapps
+         code --install-extension ms-azuretools.vscode-azurefunctions
+         code --install-extension ms-azuretools.vscode-azurestorage
+         code --install-extension ms-azuretools.vscode-docker
+         code --install-extension ms-dotnettools.blazorwasm-companion
+         code --install-extension ms-dotnettools.csdevkit
+         code --install-extension ms-dotnettools.csharp
+         code --install-extension ms-dotnettools.vscode-dotnet-runtime
+         code --install-extension ms-kubernetes-tools.aks-devx-tools
+         code --install-extension ms-kubernetes-tools.vscode-aks-tools
+         code --install-extension ms-kubernetes-tools.vscode-kubernetes-tools
+         code --install-extension redhat.vscode-yaml
+         code --install-extension esbenp.prettier-vscode
+         code --install-extension prompt-flow.prompt-flow
+         code --install-extension ms-dotnettools.dotnet-interactive-vscode
+         code --install-extension ms-toolsai.jupyter-renderers
+         code --install-extension ms-vscode-remote.vscode-remote-extensionpack
+       GetScript: return $false
+       TestScript: return $false
+########################################
+   ### Install and Configure Visual Studio 2022
+   ### Install Visual Sudio
+   ### -------------------------------------
+   - resource: Microsoft.WinGet.DSC/WinGetPackage
+     id: vsenterprise
+     directives:
+      description: Install Visual Studio 2022 Enterprise
+      allowPrerelease: true
+     settings:
+       id: Microsoft.VisualStudio.2022.Enterprise.Preview
+   ### Install VS Workloads
+   ### -------------------------------------
+   - resource: Microsoft.VisualStudio.DSC/VSComponents
+     id: vsworkloads
+     directives:
+       description: Install required VS workloads from vsconfig file
+       allowPrerelease: true
+     dependsOn:
+       - vsenterprise
+     settings:
+       productId: Microsoft.VisualStudio.Product.Enterprise
+       channelId: VisualStudio.17.Preview
+       VsConfigFile: 'z:\src\dev-box-customization-intelligent-apps\visualstudio\extensions\extensions.vsconfig'
+       includeRecommended: true
+       allowUnsignedExtensions: true
+########################################
+   ### Configure Visual Studio settings
+   ### -------------------------------------
+   - resource: Environment
+     id: vssettings
+     directives:
+      description: Set Visual Studio Unified Settings Profile environment variable
+     settings:
+      Name: VS_UNIFIED_SETTINGS_PROFILE
+      Value: 'Z:\src\dev-box-customization-intelligent-apps\visualstudio\settings\devbox'
+      Ensure: Present
+########################################
+   ### Remove Temporary GitHub Repo
+   ### -------------------------------------
+   - resource: PSDscResources/Script
+     id: removerepo
+     dependsOn:
+       - git
+     directives:
+       description: Remove Temporary Git Repo
+     settings:
+       SetScript: |
+         $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+         Remove-Item -Path "c:\src\dev-box-customization-intelligent-apps\" -Recurse -Force
+       GetScript: return $false
+       TestScript: return $false
