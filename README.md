@@ -2,9 +2,11 @@
 
 ## What is this Repo?
 
-This repo contains all the necessary steps to customize a Microsoft Dev Box to be able to start building Intelligent Apps.
+This repo contains all the necessary steps to customize a Microsoft Dev Box to be able to start building Intelligent Apps. This is done using a combination of Dev Box Customization tasks and [PowerShell Desired State Configuration (DSC)](https://learn.microsoft.com/en-us/powershell/scripting/dsc/overview).
 
 ## How do I use this repo?
+
+To use this repo, simple follow the steps below with a version of this repo cloned in your local environment.
 
 To create a Dev Box, navigate to the [Microsoft Developer Portal](https://devportal.microsoft.com/)
 
