@@ -26,7 +26,6 @@ properties:
      dependsOn:
        - git
      settings:
-        UserName: "{GIT-USERNAME}"
         UserName: "Isaac Levin"
         ConfigLocation: "Global"
    ### Git Configure Email
