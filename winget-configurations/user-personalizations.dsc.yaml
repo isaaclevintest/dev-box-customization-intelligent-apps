@@ -27,6 +27,7 @@ properties:
        - git
      settings:
         UserName: "{GIT-USERNAME}"
+        UserName: "Isaac Levin"
         ConfigLocation: "Global"
    ### Git Configure Email
    ### -------------------------------------
@@ -37,7 +38,7 @@ properties:
      dependsOn:
        - git
      settings:
-        UserEmail: "{GIT-EMAIL}"
+        UserEmail: "8878502+isaacrlevin@users.noreply.github.com"
         ConfigLocation: "Global"
    ### Install Clone dev-box-customization-intelligent-apps repository
    ### -------------------------------------
