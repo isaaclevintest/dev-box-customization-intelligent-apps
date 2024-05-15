@@ -158,8 +158,6 @@ properties:
    ### -------------------------------------
    - resource: PSDscResources/Script
      id: removerepo
-     dependsOn:
-       - git
      directives:
        description: Remove Temporary Git Repo
      settings:
