@@ -139,7 +139,7 @@ properties:
      settings:
        productId: Microsoft.VisualStudio.Product.Enterprise
        channelId: VisualStudio.17.Preview
-       VsConfigFile: '${WinGetConfigRoot}\..\visualstudio\extensions\extensions.vsconfig'
+       VsConfigFile: 'c:\src\dev-box-customization-intelligent-apps\visualstudio\extensions\extensions.vsconfig'
        includeRecommended: true
        allowUnsignedExtensions: true
 ########################################
@@ -151,7 +151,7 @@ properties:
       description: Set Visual Studio Unified Settings Profile environment variable
      settings:
       Name: VS_UNIFIED_SETTINGS_PROFILE
-      Value: '${WinGetConfigRoot}\..\visualstudio\settings\devbox'
+      Value: 'c:\src\dev-box-customization-intelligent-apps\visualstudio\settings\devbox'
       Ensure: Present
 ########################################
    ### Remove Temporary GitHub Repo
