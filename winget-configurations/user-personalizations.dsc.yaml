@@ -23,8 +23,6 @@ properties:
      directives:
        description: Configure Git
        allowPrerelease: true
-     dependsOn:
-       - git
      settings:
         UserName: "Isaac Levin"
         ConfigLocation: "Global"
@@ -34,18 +32,12 @@ properties:
      directives:
        description: Configure Git
        allowPrerelease: true
-     dependsOn:
-       - git
      settings:
         UserEmail: "8878502+isaacrlevin@users.noreply.github.com"
         ConfigLocation: "Global"
    ### Install Clone dev-box-customization-intelligent-apps repository
    ### -------------------------------------
    - resource: GitDsc/GitClone
-     id: clone-eShop
-     dependsOn:
-       - git
-       - devdrive
      directives:
        description: Clone eShop repository
        allowPrerelease: true
@@ -100,8 +92,6 @@ properties:
    ### -------------------------------------
    - resource: PSDscResources/Script
      id: vscodeextensions
-     dependsOn:
-       - vscode
      directives:
        description: Install Basic VS Code Extensions
      settings:
@@ -146,8 +136,6 @@ properties:
      directives:
        description: Install required VS workloads from vsconfig file
        allowPrerelease: true
-     dependsOn:
-       - vsenterprise
      settings:
        productId: Microsoft.VisualStudio.Product.Enterprise
        channelId: VisualStudio.17.Preview
