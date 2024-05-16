@@ -17,6 +17,24 @@ properties:
   ### RESOURCES: System Configuration
   ########################################
   resources:
+  ########################################  
+   ### Format a new Dev Drive
+   ### -------------------------------------
+   - resource: Disk
+     id: devdrive
+     directives:
+       description: 'Format a new Dev Drive volume onto Disk 0'
+       module: StorageDsc
+       allowPrerelease: true
+     settings:
+       DiskId: '0'
+       DiskIdType: 'Number'
+       DriveLetter: 'Z'
+       FSLabel: 'Dev Drive'
+       DevDrive: true
+       AllowDestructive: true
+       FSFormat: 'ReFS'
+       Size: '50Gb'  
    ### Git Configure Name
    ### -------------------------------------
    - resource: GitDsc/GitConfigUserName
@@ -76,6 +94,16 @@ properties:
      settings:
        Ensure: Present
        RestartExplorer: true
+########################################
+   ### Install GitKraken
+   ### -------------------------------------
+   - resource: Microsoft.WinGet.DSC/WinGetPackage
+     id: gitkraken
+     directives:
+       description: Install GitKraken
+       allowPrerelease: true
+     settings:
+       id: Axosoft.GitKraken
 ########################################
    ### Install and Configure Oh My Posh
    ### Install oh-my-posh
