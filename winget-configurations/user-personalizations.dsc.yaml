@@ -210,3 +210,16 @@ properties:
          Remove-Item -Path "c:\src\dev-box-customization-intelligent-apps\" -Recurse -Force
        GetScript: return $false
        TestScript: return $false
+########################################
+   ### Reboot Dev Box
+   ### -------------------------------------
+   - resource: PSDscResources/Script
+     id: reboot
+     directives:
+       description: Reboot Dev Box
+     settings:
+       SetScript: |
+         $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+         shutdown /r /f
+       GetScript: return $false
+       TestScript: return $false       
